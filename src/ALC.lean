@@ -4,7 +4,7 @@ open set
 
 def AtomicRoleType : Type := string
 def AtomicConceptType : Type := string
-def ObjectType : Type := string
+def IndividualType : Type := string
 def DomainType : Type := string
 
 inductive Role : Type
@@ -27,7 +27,7 @@ inductive Concept : Type
 variable Δi : set DomainType
 variable Iac : AtomicConceptType -> set DomainType
 variable Iar : AtomicRoleType -> set (DomainType × DomainType) 
-variable Io : ObjectType -> DomainType
+variable Io : IndividualType -> DomainType
 
 open Role
 --Ir = "Interpret Role"
@@ -47,7 +47,7 @@ def Ic : Concept -> set DomainType
 | (existentialRoleQuant r c) := {o1 : DomainType | ∃ o2 : DomainType, ((o1, o2) ∈ (Ir Iar r)) ∧ o2 ∈ (Ic c)}
 
 inductive ALCStatement: Type
-| ConceptAssertion : Concept -> ObjectType -> ALCStatement
+| ConceptAssertion : Concept -> IndividualType -> ALCStatement
 | RoleAssertion : Role -> (DomainType × DomainType) -> ALCStatement
 | TboxAssertion : Concept -> Concept -> ALCStatement
 
