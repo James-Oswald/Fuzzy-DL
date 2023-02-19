@@ -29,6 +29,14 @@ variable Iac : AtomicConceptType -> set DomainType
 variable Iar : AtomicRoleType -> set (DomainType × DomainType) 
 variable Io : IndividualType -> DomainType
 
+--axiom conceptsInDomain: ∀x y, y ∈ (Iac x) -> y ∈ Δi
+axiom rolesInDomain: ∀x y z, (z, y) ∈ (Iar x) -> (y ∈ Δi ∧ z ∈ Δi)
+--axioms individualsInDomain: ∀x, Io x ∈ Δi
+
+axiom conceptsInDomain: ∀x, (Iac x) ⊆ Δi
+--axiom rolesInDomain: ∀x, (Iar x) ⊆ (Δi × Δi)
+axioms individualsInDomain: ∀x, Io x ∈ Δi
+
 open Role
 --Ir = "Interpret Role"
 def Ir: Role -> set (DomainType × DomainType)
@@ -43,12 +51,12 @@ def Ic : Concept -> set DomainType
 | (conjunction c1 c2) := (Ic c1) ∩ (Ic c2)
 | (disjunction c1 c2) := (Ic c1) ∪ (Ic c2)
 | (negation c1) := Δi \ (Ic c1)
-| (universalRoleQuant r c) := {o1 : DomainType | ∀ o2 : DomainType, ((o1, o2) ∈ (Ir Iar r)) → o2 ∈ (Ic c)}
-| (existentialRoleQuant r c) := {o1 : DomainType | ∃ o2 : DomainType, ((o1, o2) ∈ (Ir Iar r)) ∧ o2 ∈ (Ic c)}
+| (universalRoleQuant r c) := {o1 ∈ Δi | ∀ o2 ∈ Δi, ((o1, o2) ∈ (Ir Iar r)) → o2 ∈ (Ic c)}
+| (existentialRoleQuant r c) := {o1 ∈ Δi | ∃ o2 ∈ Δi, ((o1, o2) ∈ (Ir Iar r)) ∧ o2 ∈ (Ic c)}
 
 inductive ALCStatement: Type
 | ConceptAssertion : Concept -> IndividualType -> ALCStatement
-| RoleAssertion : Role -> (DomainType × DomainType) -> ALCStatement
+| RoleAssertion : Role -> (IndividualType × IndividualType) -> ALCStatement
 | TboxAssertion : Concept -> Concept -> ALCStatement
 
 open ALCStatement

@@ -18,7 +18,7 @@ def ex1Statement: ALCStatement :=
 (ConceptAssertion (existentialRoleQuant (atomicRole "Friend") (atomicConcept "Tall")) "tim")
 
 --Example 1 Theorem: It is entailed that Tim has a friend who is tall
-theorem ex1 : entails ex1KB ex1Statement := begin
+example : entails ex1KB ex1Statement := begin
   --Expand out and get all of our hypothesis 
   rewrite entails,
   intros Δi, intros Iac, intros Iar, intros Io,
@@ -34,30 +34,40 @@ theorem ex1 : entails ex1KB ex1Statement := begin
   simp,
 
   --Its obvious to us that tom will take the place here
-  existsi (Io "tom"),
   split,
   {
-    --Prove that Tom and Tim are friends
-    have IModelsExKB2 := IModelsKB,
-    specialize IModelsExKB2 ex1KB2,
-    simp at IModelsExKB2,
-    rewrite ex1KB2 at IModelsExKB2,
-    rewrite eval at IModelsExKB2,
-    rewrite Ir at IModelsExKB2,
-    exact IModelsExKB2,
+    apply individualsInDomain,
   },
   {
-    --Prove that Tom is Tall
-    have IModelsExKB1 := IModelsKB,
-    specialize IModelsExKB1 ex1KB1,
-    simp at IModelsExKB1,
-    rewrite ex1KB1 at IModelsExKB1,
-    rewrite eval at IModelsExKB1,
-    rewrite Ic at IModelsExKB1,
-    rewrite Ic at IModelsExKB1,
-    rewrite Ic at IModelsExKB1,
-    simp at IModelsExKB1,
-    cases IModelsExKB1,
-    exact IModelsExKB1_left,
+    existsi (Io "tom"),
+    split,{
+      apply individualsInDomain,
+    },{
+      split,
+      {
+        --Prove that Tom and Tim are friends
+        have IModelsExKB2 := IModelsKB,
+        specialize IModelsExKB2 ex1KB2,
+        simp at IModelsExKB2,
+        rewrite ex1KB2 at IModelsExKB2,
+        rewrite eval at IModelsExKB2,
+        rewrite Ir at IModelsExKB2,
+        exact IModelsExKB2,
+      },
+      {
+        --Prove that Tom is Tall
+        have IModelsExKB1 := IModelsKB,
+        specialize IModelsExKB1 ex1KB1,
+        simp at IModelsExKB1,
+        rewrite ex1KB1 at IModelsExKB1,
+        rewrite eval at IModelsExKB1,
+        rewrite Ic at IModelsExKB1,
+        rewrite Ic at IModelsExKB1,
+        rewrite Ic at IModelsExKB1,
+        simp at IModelsExKB1,
+        cases IModelsExKB1,
+        exact IModelsExKB1_left,
+      }
+    }
   }
 end
