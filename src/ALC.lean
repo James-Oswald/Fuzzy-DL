@@ -65,6 +65,9 @@ def eval : ALCStatement -> Prop
 | (RoleAssertion role (o₁, o₂)) := (Io o₁, Io o₂) ∈ (Ir Iar role)
 | (TboxAssertion c₁ c₂) := (Ic Δi Iac Iar c₁) ⊆ (Ic Δi Iac Iar c₂)
 
+def models (Sigma : set ALCStatement) : Prop :=
+∀ s ∈ Sigma, (eval Δi Iac Iar Io s)
+
 def entails (Sigma : set ALCStatement) (α : ALCStatement) : Prop :=
-∀ Δi Iac Iar Io, ((∀ s ∈ Sigma, (eval Δi Iac Iar Io s)) → (eval Δi Iac Iar Io α))
+∀ Δi Iac Iar Io, (models Δi Iac Iar Io Sigma) → (eval Δi Iac Iar Io α)
 

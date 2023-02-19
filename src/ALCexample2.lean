@@ -4,7 +4,7 @@ import ALC
 open Concept Role ALCStatement
 
 
-theorem contraposition (A B : Prop) (h : ¬ B → ¬ A) : A → B :=
+theorem contraposition1 (A B : Prop) (h : ¬ B → ¬ A) : A → B :=
 assume h1 : A,
 show B, from
   by_contradiction
@@ -12,68 +12,96 @@ show B, from
       have h3 : ¬ A, from h h2,
       show false, from h3 h1)
 
---This proof says that if the domain is empty, concept interpretation reurs
-lemma ICEmptyDomain: ∀Iac Iar c, Ic ∅ Iac Iar c = ∅ :=
+theorem contraposition (A B : Prop) : (¬B → ¬A) ↔ (A → B) :=
 begin
-  intros Iac Iar c,
-  induction c,{
-    rewrite Ic,
-    have H, from conceptsInDomain,
-    specialize H ∅ Iac c,
-    have H2, from set.eq_empty_of_subset_empty H,
-    exact H2,  
+  apply iff.intro,{
+    apply contraposition1,
   },{
-    rewrite Ic,
-  },{
-    rewrite Ic,
-  },{
-    rewrite Ic,
-    rewrite c_ih_ᾰ,
-    rewrite c_ih_ᾰ_1,
-    apply set.empty_inter,
-  },{
-    rewrite Ic,
-    rewrite c_ih_ᾰ,
-    rewrite c_ih_ᾰ_1,
-    apply set.empty_union,
-  },{
-    rewrite Ic,
-    rewrite c_ih,
-    apply set.empty_diff
-  },{
-    rewrite Ic,
-    rewrite c_ih,
-    simp,
-  },{
-    rewrite Ic,
-    rewrite c_ih,
-    simp,
+    intros H,
+    intros NB,
+    by_contradiction,
+    have B : B, from H h,
+    apply not.elim NB B,
   }
 end
 
-lemma notMem (α : Type) (e : α) (H : e ∉ ({e} : set α)): false :=
-begin
-  simp at H,
-  exact H,
-end
+
+
+
+
+
+
+
 
 example : ∀ KB R o1 o2, (entails KB (RoleAssertion R (o1, o2)) ↔ (RoleAssertion R (o1, o2)) ∈ KB) := 
 begin
   intros KB, intros R, intros o1, intros o2,
   apply iff.intro,
   {
-    intro H,
-    rewrite entails at H,
-    specialize H {"arbitrary"},    --Domain
-    specialize H (λx,{"arbitrary"}),  --Concept map
-    specialize H (λx,∅),  --RoleMap
-    specialize H (λx, "arbirary"),
-    rewrite eval at H,
-    cases R,
-    rewrite Ir at H,
-    simp at H,
-    have N, from not.intro H,
-    simp at N,
+
+
+    sorry,
+  },
+  {
+    intros H,
+    rewrite entails,
+    intros Δi, intros Iac, intros Iar, intros Io,
+    intros H2,
+    specialize H2 (RoleAssertion R (o1, o2)),
+    apply H2,
+    exact H,
+  }
+end
+
+
+/-
+--This is equivlent to trying prove a contradiction 
+theorem counterEx : ¬∀ KB R o1 o2, entails KB (RoleAssertion R (o1, o2)) → RoleAssertion R (o1, o2) ∈ KB :=
+begin
+  simp,
+  existsi {RoleAssertion (atomicRole "ArbitraryRole") ("o1", "o2")},
+  existsi (atomicRole "ArbitraryRole"),
+  existsi "o1",
+  existsi "o2",
+  split,{
+    rewrite entails,
+    intros Domain Iac Iar Io,
+    intros H,
+    specialize H (RoleAssertion (atomicRole "ArbitraryRole") ("o1", "o2")),
+    apply H,
+    sorry,
+  },{
+    sorry,
+  },
+  sorry,
+end
+
+theorem counterEx2 : ∀ KB R o1 o2, ¬(entails KB (RoleAssertion R (o1, o2)) → RoleAssertion R (o1, o2) ∈ KB) :=
+begin
+  intros KB, intros R, intros o1, intros o2,
+  simp,
+  split,
+  {
+    rewrite entails,
+    intros Domain Iac Iar Io,
+    intros H,
+    specialize H (RoleAssertion R (o1, o2)),
+    apply H,
+    admit,
+  },
+  {
+    sorry,
+  },
+end
+-/
+
+
+/-
+   --apply contraposition at H,
+
+
+    --have N, from not.intro H,
+    /-simp at N,
     cases N,
     cases N_w,
     {
@@ -88,7 +116,7 @@ begin
         sorry,
       },{
         rewrite Ic at N_h,
-        
+
       },{
 
       },{
@@ -101,6 +129,7 @@ begin
     },{
       sorry
     }
+    -/
     --simp ite at H,
 
     /-
@@ -156,56 +185,89 @@ begin
     --specialize H Δi Iac Iar Io,
     --by_contra,
     --by_cases ,
-  },
-  {
-    intros H,
-    rewrite entails,
-    intros Δi, intros Iac, intros Iar, intros Io,
-    intros H2,
-    specialize H2 (RoleAssertion R (o1, o2)),
-    apply H2,
-    exact H,
+-/
+
+/-
+    axiom LEM :∀ (A : Prop), A ∨ ¬A
+
+    
+    intro H,
+    rewrite entails at H,
+    let Domain : set DomainType := {"arbitrary"},
+    let ConI : AtomicConceptType → set DomainType := (λx,{"arbitrary"}),
+    let RolI : AtomicRoleType -> set (DomainType × DomainType):= (λx,{("arbitrary", "arbitrary")}),
+    let ObjI : IndividualType -> DomainType:= (λx, "arbitrary"),
+    specialize H Domain,    --Domain
+    specialize H ConI,  --Concept map
+    specialize H RolI,  --RoleMap
+    specialize H ObjI,
+    rewrite eval at H,
+    cases R,
+    rewrite Ir at H,
+    let P : Prop := models Domain ConI RolI ObjI KB,
+    have LEMP: P ∨ ¬P := LEM P,
+    cases LEMP,{
+      have p : (models Domain ConI RolI ObjI KB), from LEMP,
+      rewrite models at p,
+      by_contra,
+      specialize p (RoleAssertion (atomicRole R) (o1, o2)),
+      rewrite eval at p,
+      rewrite Ir at p,
+      simp at p,
+
+    },{
+      have p : ¬(models Domain ConI RolI ObjI KB), from LEMP,
+      rewrite models at p,
+      simp at p,
+    }
+-/
+
+--This proof says that if the domain is empty, concept interpretation is also empty
+lemma ICEmptyDomain: ∀Iac Iar c, Ic ∅ Iac Iar c = ∅ :=
+begin
+  intros Iac Iar c,
+  induction c,{
+    rewrite Ic,
+    have H, from conceptsInDomain,
+    specialize H ∅ Iac c,
+    have H2, from set.eq_empty_of_subset_empty H,
+    exact H2,  
+  },{
+    rewrite Ic,
+  },{
+    rewrite Ic,
+  },{
+    rewrite Ic,
+    rewrite c_ih_ᾰ,
+    rewrite c_ih_ᾰ_1,
+    apply set.empty_inter,
+  },{
+    rewrite Ic,
+    rewrite c_ih_ᾰ,
+    rewrite c_ih_ᾰ_1,
+    apply set.empty_union,
+  },{
+    rewrite Ic,
+    rewrite c_ih,
+    apply set.empty_diff
+  },{
+    rewrite Ic,
+    rewrite c_ih,
+    simp,
+  },{
+    rewrite Ic,
+    rewrite c_ih,
+    simp,
   }
 end
 
-
-/-
---This is equivlent to trying prove a contradiction 
-theorem counterEx : ¬∀ KB R o1 o2, entails KB (RoleAssertion R (o1, o2)) → RoleAssertion R (o1, o2) ∈ KB :=
+lemma notMem (α : Type) (e : α) (H : e ∉ ({e} : set α)): false :=
 begin
-  simp,
-  existsi {RoleAssertion (atomicRole "ArbitraryRole") ("o1", "o2")},
-  existsi (atomicRole "ArbitraryRole"),
-  existsi "o1",
-  existsi "o2",
-  split,{
-    rewrite entails,
-    intros Domain Iac Iar Io,
-    intros H,
-    specialize H (RoleAssertion (atomicRole "ArbitraryRole") ("o1", "o2")),
-    apply H,
-    sorry,
-  },{
-    sorry,
-  },
-  sorry,
+  simp at H,
+  exact H,
 end
 
-theorem counterEx2 : ∀ KB R o1 o2, ¬(entails KB (RoleAssertion R (o1, o2)) → RoleAssertion R (o1, o2) ∈ KB) :=
+lemma rewriteOvb : ("arbitrary", "arbitrary") ∈ ({("arbitrary", "arbitrary")} : set (DomainType ×  DomainType)) = true :=
 begin
-  intros KB, intros R, intros o1, intros o2,
   simp,
-  split,
-  {
-    rewrite entails,
-    intros Domain Iac Iar Io,
-    intros H,
-    specialize H (RoleAssertion R (o1, o2)),
-    apply H,
-    admit,
-  },
-  {
-    sorry,
-  },
 end
--/
