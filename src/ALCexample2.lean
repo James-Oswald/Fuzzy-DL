@@ -3,6 +3,51 @@ import ALC
 
 open Concept Role ALCStatement
 
+axiom LEM :∀ (A : Prop), A ∨ ¬A
+
+
+lemma dir1 : ∀ KB R o1 o2, ((RoleAssertion R (o1, o2)) ∈ KB) -> entails KB (RoleAssertion R (o1, o2)) :=
+begin
+  intros KB, intros R, intros o1, intros o2,
+  intros H,
+  rewrite entails,
+  intros Δi, intros Iac, intros Iar, intros Io,
+  intros H2,
+  specialize H2 (RoleAssertion R (o1, o2)),
+  apply H2,
+  exact H,
+end
+
+lemma dir2 : ∀ KB R o1 o2, (entails KB (RoleAssertion R (o1, o2)) -> (RoleAssertion R (o1, o2)) ∈ KB) :=
+begin
+  intros KB R o1 o2,
+  by_contra,
+
+  rewrite entails at H,
+  
+
+
+  let Domain : set DomainType := {"arbitrary"},
+  let ConI : AtomicConceptType → set DomainType := (λx,{"arbitrary"}),
+  let RolI : AtomicRoleType -> set (DomainType × DomainType):= (λx,{("arbitrary", "arbitrary")}),
+  let ObjI : IndividualType -> DomainType:= (λx, "arbitrary"),
+  specialize H Domain,    --Domain
+  specialize H ConI,  --Concept map
+  specialize H RolI,  --RoleMap
+  specialize H ObjI,
+end
+
+example : ∀ KB R o1 o2, (entails KB (RoleAssertion R (o1, o2)) ↔ (RoleAssertion R (o1, o2)) ∈ KB) := 
+begin
+  intros KB R o1 o2,
+  apply iff.not,
+end
+
+
+
+--Trash
+
+
 
 theorem contraposition1 (A B : Prop) (h : ¬ B → ¬ A) : A → B :=
 assume h1 : A,
@@ -24,35 +69,6 @@ begin
     apply not.elim NB B,
   }
 end
-
-
-
-
-
-
-
-
-
-example : ∀ KB R o1 o2, (entails KB (RoleAssertion R (o1, o2)) ↔ (RoleAssertion R (o1, o2)) ∈ KB) := 
-begin
-  intros KB, intros R, intros o1, intros o2,
-  apply iff.intro,
-  {
-
-
-    sorry,
-  },
-  {
-    intros H,
-    rewrite entails,
-    intros Δi, intros Iac, intros Iar, intros Io,
-    intros H2,
-    specialize H2 (RoleAssertion R (o1, o2)),
-    apply H2,
-    exact H,
-  }
-end
-
 
 /-
 --This is equivlent to trying prove a contradiction 
@@ -190,7 +206,7 @@ end
 /-
     axiom LEM :∀ (A : Prop), A ∨ ¬A
 
-    
+
     intro H,
     rewrite entails at H,
     let Domain : set DomainType := {"arbitrary"},
@@ -271,3 +287,18 @@ lemma rewriteOvb : ("arbitrary", "arbitrary") ∈ ({("arbitrary", "arbitrary")} 
 begin
   simp,
 end
+
+
+/-
+intros KB, intros R, intros o1, intros o2,
+  apply iff.intro,
+  {
+    intros H,
+    rewrite entails at H,
+
+  },
+  {
+    apply dir1,
+  }
+
+-/
